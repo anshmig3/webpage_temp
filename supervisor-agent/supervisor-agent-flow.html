@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supervisor Agent — User Flow</title>
+<style>
+  body{
+    font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+    background:#f4f5f7;
+    margin:0;
+    padding:32px;
+    color:#1a1a1a;
+  }
+  h1{
+    font-size:22px;
+    color:#0b3d91;
+    margin:0 0 4px;
+  }
+  .subtitle{
+    font-size:14px;
+    color:#555;
+    margin:0 0 24px;
+  }
+  .diagram-card{
+    background:#fff;
+    border:1px solid #e2e4e8;
+    border-radius:8px;
+    padding:24px;
+    overflow-x:auto;
+    margin-bottom:24px;
+  }
+  .legend{
+    background:#fff;
+    border:1px solid #e2e4e8;
+    border-radius:8px;
+    padding:20px 24px;
+    font-size:14px;
+    line-height:1.6;
+  }
+  .legend h2{
+    font-size:15px;
+    color:#0b3d91;
+    margin:0 0 10px;
+  }
+  .legend table{
+    border-collapse:collapse;
+    width:100%;
+  }
+  .legend th, .legend td{
+    text-align:left;
+    padding:6px 10px;
+    border-bottom:1px solid #e2e4e8;
+    font-size:13px;
+  }
+  .legend th{
+    color:#555;
+    font-weight:600;
+  }
+  code{
+    background:#eef1f6;
+    padding:1px 5px;
+    border-radius:3px;
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Supervisor Agent — User Flow</h1>
+  <p class="subtitle">Based on the routing rules in <code>main.py</code> (login gating, tool selection, anti-fabrication checks).</p>
+
+  <div class="diagram-card">
+    <pre class="mermaid">
+flowchart TD
+    A(["Customer sends a message"]) --> B{"What kind of message?"}
+
+    B -->|"Greeting / small talk"| C["Answer directly<br/>(no tool call)"]
+
+    B -->|"Action request<br/>(place order, buy, cancel, return)"| D["No connected tool can do this<br/>Say so plainly + suggest what IS possible"]
+
+    B -->|"Information request"| E{"Which topic?"}
+
+    E -->|"General FAQ / policy"| F["faq_agent"]
+    E -->|"Own order status/history"| G["order_agent"]
+    E -->|"Product pricing/catalog"| H["panda_agent"]
+    E -->|"Return/exchange policy"| I["shipping_refund_info_agent"]
+
+    F --> J{"Is this tool available<br/>to the current caller?"}
+    G --> J
+    H --> J
+    I --> J
+
+    J -->|"No — guest,<br/>needs login"| K["Reply: literal LOGIN_REQUIRED"]
+    K --> L["Frontend shows inline<br/>email login form"]
+    L --> M["Caller submits email"]
+    M --> N["Original question auto-resumed<br/>with email — not retyped"]
+    N --> J
+
+    J -->|"Yes — authorized"| O["Call the tool immediately<br/>with what caller already said"]
+    O --> P{"Tool returned<br/>a real answer?"}
+    P -->|"Yes"| Q["Relay only what the tool said —<br/>no embellishment, no guessing"]
+    P -->|"No / empty / error"| R["'I don't have that<br/>information right now'"]
+
+    Q --> S(["Reply shown +<br/>'via &lt;tool_name&gt;' badge"])
+    R --> S
+    C --> S
+    D --> S
+
+    classDef entry fill:#0b3d91,color:#fff,stroke:#0b3d91;
+    classDef decision fill:#eef4fc,color:#0b3d91,stroke:#1478c8,stroke-width:1.5px;
+    classDef tool fill:#1eaee8,color:#fff,stroke:#1478c8;
+    classDef terminal fill:#0b3d91,color:#fff,stroke:#0b3d91;
+    classDef normal fill:#f4f5f7,color:#1a1a1a,stroke:#c9ccd3;
+
+    class A entry;
+    class S terminal;
+    class B,E,J,P decision;
+    class F,G,H,I tool;
+    class C,D,K,L,M,N,O,Q,R normal;
+    </pre>
+  </div>
+
+  <div class="legend">
+    <h2>Guest vs. logged-in access</h2>
+    <table>
+      <tr><th>Tool</th><th>Guest</th><th>Logged in (email)</th><th>Why</th></tr>
+      <tr><td><code>faq_agent</code></td><td>✅</td><td>✅</td><td>General FAQ — public content</td></tr>
+      <tr><td><code>shipping_refund_info_agent</code></td><td>✅</td><td>✅</td><td>Return/exchange policy — general, not account-specific</td></tr>
+      <tr><td><code>order_agent</code></td><td>🚫 → LOGIN_REQUIRED</td><td>✅</td><td>Caller's own order data</td></tr>
+      <tr><td><code>panda_agent</code></td><td>🚫 → LOGIN_REQUIRED</td><td>✅</td><td>Pricing/catalog gated to logged-in callers</td></tr>
+    </table>
+    <p style="margin-top:12px;">
+      Login state travels as a one-time leading <code>system</code> message from the chat backend
+      (guest vs. email + the real email address), which the supervisor's access-control middleware
+      reads, restricts the tool list from, and then replaces with a plain-language note so the
+      model knows the current caller's actual login state — not just that "some caller" might
+      need one.
+    </p>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: {
+    primaryColor: '#eef4fc',
+    primaryTextColor: '#0b3d91',
+    primaryBorderColor: '#1478c8',
+    lineColor: '#556',
+    fontFamily: 'Segoe UI, Arial, sans-serif',
+    fontSize: '14px'
+  }});
+</script>
+</body>
+</html>

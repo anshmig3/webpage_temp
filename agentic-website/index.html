@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AeroParts Distribution</title>
+<style>
+  :root{
+    --navy:#0a1a3c;
+    --blue:#0b3d91;
+    --blue-light:#1478c8;
+    --accent:#1eaee8;
+    --text-dark:#1a1a1a;
+    --gray-bg:#f4f5f7;
+    --border:#e2e4e8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"Segoe UI",Arial,Helvetica,sans-serif;color:var(--text-dark);background:#fff;}
+  a{text-decoration:none;color:inherit;}
+
+  /* Top utility bar */
+  .utility-bar{
+    background:var(--navy);
+    color:#cfe0f5;
+    font-size:13px;
+    padding:10px 32px;
+    display:flex;
+    align-items:center;
+    gap:28px;
+  }
+  .utility-bar .shop-dd{color:#fff;font-weight:700;display:flex;align-items:center;gap:4px;}
+  .utility-bar a{opacity:.85;}
+  .utility-bar a:hover{opacity:1;text-decoration:underline;}
+
+  /* Search / brand bar */
+  .search-bar{
+    background:var(--blue);
+    padding:18px 32px;
+    display:flex;
+    align-items:center;
+    gap:24px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#fff;
+    white-space:nowrap;
+  }
+  .brand-mark{
+    height:26px;width:auto;
+    display:block;
+  }
+  /* Shown only if the logo image fails to load */
+  .brand-mark-fallback{
+    height:34px;width:34px;border-radius:50%;
+    border:2px solid #fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:14px;
+    background:transparent;padding:0;
+    color:#fff;
+  }
+  .brand-name{font-size:22px;font-weight:800;letter-spacing:.5px;font-style:italic;}
+  .brand-sub{font-size:20px;font-weight:400;padding-left:8px;border-left:2px solid rgba(255,255,255,.4);margin-left:4px;}
+  .search-form{
+    flex:1;
+    display:flex;
+    max-width:640px;
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .search-form input{
+    flex:1;
+    border:none;
+    padding:12px 16px;
+    font-size:15px;
+    outline:none;
+  }
+  .search-form button{
+    background:var(--accent);
+    border:none;
+    color:#fff;
+    padding:0 20px;
+    cursor:pointer;
+    font-size:18px;
+  }
+  .search-form button:hover{background:#1898cf;}
+  .help-icon{
+    color:#fff;font-size:22px;
+    width:36px;height:36px;border:2px solid #fff;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .login-btn{
+    background:#fff;color:var(--blue);
+    padding:12px 22px;border-radius:4px;
+    font-weight:700;font-size:14px;
+    white-space:nowrap;
+    border:none;cursor:pointer;
+  }
+  .login-btn:hover{background:#e8f0fb;}
+
+  /* Main nav */
+  .main-nav{
+    display:flex;
+    gap:36px;
+    padding:0 32px;
+    border-bottom:1px solid var(--border);
+  }
+  .main-nav a{
+    display:inline-block;
+    padding:18px 0;
+    font-size:15px;
+    color:#222;
+    font-weight:500;
+    border-bottom:3px solid transparent;
+  }
+  .main-nav a:hover{border-bottom-color:var(--blue-light);color:var(--blue);}
+
+  /* Breadcrumb */
+  .breadcrumb{
+    background:var(--gray-bg);
+    padding:14px 32px;
+    font-size:14px;
+    color:#555;
+    display:flex;align-items:center;gap:8px;
+  }
+  .breadcrumb a{color:var(--blue-light);}
+  .breadcrumb .sep{color:#999;}
+
+  /* Hero */
+  .hero{
+    position:relative;
+    background:linear-gradient(120deg,var(--blue) 0%, var(--blue) 55%, #d9c9ae 55%);
+    min-height:360px;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+  }
+  .hero-content{
+    position:relative;
+    z-index:2;
+    color:#fff;
+    padding:0 32px;
+    max-width:560px;
+  }
+  .hero-content h1{
+    font-size:44px;
+    font-weight:800;
+    line-height:1.15;
+    margin-bottom:18px;
+  }
+  .hero-content p{
+    font-size:17px;
+    line-height:1.5;
+    margin-bottom:26px;
+    color:#e4ecf9;
+  }
+  .hero-content .cta{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:14px 28px;
+    font-size:15px;
+    font-weight:700;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .hero-content .cta:hover{background:#1898cf;}
+  .hero-photo{
+    position:absolute;
+    right:0;top:0;bottom:0;
+    width:46%;
+    background:
+      radial-gradient(circle at 70% 30%, rgba(255,255,255,.15), transparent 55%),
+      repeating-linear-gradient(100deg, #c9b795 0 40px, #b7a582 40px 80px);
+    clip-path:polygon(18% 0, 100% 0, 100% 100%, 0% 100%);
+  }
+  .feedback-tab{
+    position:absolute;
+    right:0;top:40%;
+    background:var(--blue);
+    color:#fff;
+    font-size:12px;
+    letter-spacing:1px;
+    padding:14px 6px;
+    writing-mode:vertical-rl;
+    border-radius:4px 0 0 4px;
+    cursor:pointer;
+    z-index:3;
+  }
+
+  /* Below section */
+  .below{
+    max-width:1100px;
+    margin:0 auto;
+    padding:64px 32px;
+    text-align:center;
+  }
+  .below h2{
+    font-size:34px;
+    color:#222;
+  }
+
+  @media (max-width:800px){
+    .hero-content h1{font-size:30px;}
+    .hero-photo{display:none;}
+    .hero{background:var(--blue);}
+    .main-nav{overflow-x:auto;gap:20px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="utility-bar">
+    <span class="shop-dd">Shop ▾</span>
+    <a href="#">Global Services</a>
+    <a href="#">MyFleet Portal</a>
+    <a href="#">My Account</a>
+    <a href="#">Support</a>
+  </div>
+
+  <div class="search-bar">
+    <div class="brand">
+      <img class="brand-mark" src="Boeing-Logo.svg" alt="Boeing" onerror="this.outerHTML='&lt;div class=&quot;brand-mark brand-mark-fallback&quot;&gt;B&lt;/div&gt;'">
+      <span class="brand-name">BOEING</span>
+      <span class="brand-sub">Distribution</span>
+    </div>
+    <form class="search-form" onsubmit="return false;">
+      <input type="text" placeholder="Enter a part number, keyword, or search term">
+      <button type="submit" aria-label="Search">&#128269;</button>
+    </form>
+    <div class="help-icon">?</div>
+    <button class="login-btn">Log In to Boeing Distribution</button>
+  </div>
+
+  <nav class="main-nav">
+    <a href="#">Products</a>
+    <a href="#">Services</a>
+    <a href="#">Promotions</a>
+    <a href="#">Support</a>
+    <a href="#">Resources</a>
+    <a href="#">About</a>
+  </nav>
+
+  <div class="breadcrumb">
+    <a href="#">Home</a>
+    <span class="sep">›</span>
+    <span>Boeing Demo</span>
+  </div>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Save up to 90% on overstock parts</h1>
+      <p>Shop airframe parts, engines, hardware, hoses, and more.</p>
+      <button class="cta">Shop Now</button>
+    </div>
+    <div class="hero-photo"></div>
+    <div class="feedback-tab">Give Feedback</div>
+  </section>
+
+  <section class="below">
+    <h2>Shop everything you need to fly. Wherever. Whenever.</h2>
+  </section>
+
+  <!-- ===================== Floating Helpdesk Chat Widget ===================== -->
+  <div id="chat-launcher" aria-label="Open helpdesk chat">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 4h16v12H7l-3 3V4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div id="chat-panel">
+    <div id="chat-header">
+      <span>Helpdesk Chat</span>
+      <button id="chat-close" aria-label="Close chat">✕</button>
+    </div>
+
+    <div id="chat-conversation">
+      <div id="chat-messages"></div>
+      <div id="chat-status"></div>
+
+      <!-- Hidden until the agent actually needs an email for the question just asked
+           (see login_required in the /api/chat response) — chat starts immediately as
+           a guest, and this only appears inline, in place of the normal input, when
+           login is genuinely required. -->
+      <div id="chat-email-gate" style="display:none;">
+        <p id="chat-email-gate-text">Please log in with your email to continue.</p>
+        <form id="chat-email-form">
+          <input id="chat-email-input" type="email" placeholder="you@example.com" required autocomplete="email">
+          <button type="submit">Continue</button>
+        </form>
+        <div id="chat-email-error"></div>
+      </div>
+
+      <form id="chat-form">
+        <input id="chat-input" type="text" placeholder="Type your question…" autocomplete="off">
+        <button type="submit" id="chat-send" aria-label="Send">➤</button>
+      </form>
+    </div>
+  </div>
+
+<style>
+  #chat-launcher{
+    position:fixed;
+    right:24px;
+    bottom:24px;
+    width:56px;height:56px;
+    background:var(--blue,#0b3d91);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+    cursor:pointer;
+    z-index:1000;
+    transition:transform .15s ease;
+  }
+  #chat-launcher:hover{transform:scale(1.06);}
+
+  #chat-panel{
+    position:fixed;
+    right:24px;
+    bottom:92px;
+    width:480px;
+    max-width:calc(100vw - 32px);
+    height:640px;
+    max-height:calc(100vh - 140px);
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 10px 40px rgba(0,0,0,.25);
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+    z-index:1000;
+  }
+  #chat-panel.open{display:flex;}
+
+  #chat-header{
+    background:var(--blue,#0b3d91);
+    color:#fff;
+    padding:14px 16px;
+    font-weight:700;
+    font-size:15px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  #chat-close{
+    background:none;border:none;color:#fff;font-size:16px;cursor:pointer;
+    opacity:.85;
+  }
+  #chat-close:hover{opacity:1;}
+
+  #chat-email-gate{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    padding:12px 14px;
+    background:#eef4fc;
+    border-top:1px solid #e2e4e8;
+  }
+  #chat-email-gate p{
+    font-size:13px;
+    color:#333;
+    line-height:1.4;
+  }
+  #chat-email-form{
+    display:flex;
+    gap:8px;
+  }
+  #chat-email-input{
+    flex:1;
+    border:1px solid #ccc;
+    border-radius:6px;
+    padding:9px 12px;
+    font-size:14px;
+    outline:none;
+  }
+  #chat-email-input:focus{border-color:var(--blue-light,#1478c8);}
+  #chat-email-form button{
+    background:var(--blue,#0b3d91);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:0 16px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  #chat-email-form button:hover{background:#092f70;}
+  #chat-email-error{
+    font-size:12px;
+    color:#c0392b;
+    min-height:14px;
+  }
+
+  #chat-conversation{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  #chat-messages{
+    flex:1;
+    padding:14px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    background:#f7f8fa;
+  }
+  .msg{
+    max-width:80%;
+    padding:9px 12px;
+    border-radius:12px;
+    font-size:14px;
+    line-height:1.4;
+    white-space:pre-wrap;
+  }
+  .msg.user{
+    align-self:flex-end;
+    background:var(--blue,#0b3d91);
+    color:#fff;
+    border-bottom-right-radius:2px;
+  }
+  .msg.bot{
+    align-self:flex-start;
+    background:#e8eaef;
+    color:#222;
+    border-bottom-left-radius:2px;
+  }
+  #chat-status{
+    font-size:12px;
+    color:#888;
+    padding:0 14px 6px;
+    min-height:16px;
+  }
+  #chat-form{
+    display:flex;
+    border-top:1px solid #e2e4e8;
+    padding:10px;
+    gap:8px;
+  }
+  #chat-input{
+    flex:1;
+    border:1px solid #ccc;
+    border-radius:20px;
+    padding:9px 14px;
+    font-size:14px;
+    outline:none;
+  }
+  #chat-input:focus{border-color:var(--blue-light,#1478c8);}
+  #chat-send{
+    background:var(--accent,#1eaee8);
+    border:none;
+    color:#fff;
+    width:36px;height:36px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:15px;
+  }
+  #chat-send:hover{background:#1898cf;}
+  #chat-send:disabled{opacity:.5;cursor:default;}
+  .msg.bot table{
+    border-collapse:collapse;
+    width:100%;
+    font-size:13px;
+    margin:4px 0;
+  }
+  .msg.bot th, .msg.bot td{
+    border:1px solid #c9ccd3;
+    padding:5px 8px;
+    text-align:left;
+  }
+  .msg.bot th{
+    background:#dde1e8;
+    font-weight:700;
+  }
+  .msg.bot .table-scroll{
+    overflow-x:auto;
+    max-width:100%;
+  }
+  .msg.bot p{ margin:0 0 8px; }
+  .msg.bot p:last-child{ margin-bottom:0; }
+  .msg.bot ul, .msg.bot ol{ margin:4px 0 8px 20px; padding:0; }
+  .msg.bot code{
+    background:#dde1e8;
+    border-radius:3px;
+    padding:1px 4px;
+    font-size:12px;
+  }
+  .msg.bot a{ color:var(--blue-light,#1478c8); }
+  .tool-badge{
+    margin-top:6px;
+    font-size:11px;
+    color:#767a85;
+    font-style:italic;
+  }
+</style>
+
+<!-- Markdown rendering for bot replies (tables, bold, lists, etc.) -->
+<script src="https://cdn.jsdelivr.net/npm/marked@12/lib/marked.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+
+<script>
+(function(){
+  // Point this at wherever the FastAPI backend is running.
+  const CHAT_ENDPOINT = "http://localhost:8000/api/chat";
+
+  const launcher = document.getElementById('chat-launcher');
+  const panel = document.getElementById('chat-panel');
+  const closeBtn = document.getElementById('chat-close');
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+  const messages = document.getElementById('chat-messages');
+  const status = document.getElementById('chat-status');
+
+  const emailGate = document.getElementById('chat-email-gate');
+  const emailGateText = document.getElementById('chat-email-gate-text');
+  const emailForm = document.getElementById('chat-email-form');
+  const emailInput = document.getElementById('chat-email-input');
+  const emailError = document.getElementById('chat-email-error');
+
+  // Confirmed prior turns only — the in-flight turn is added after a successful
+  // reply (see sendChat), so a login-required retry never double-sends it.
+  let history = []; // [{role:'user'|'assistant', content:'...'}]
+  let opened = false;
+  // Absence of an email simply means "guest" — there's no separate upfront choice
+  // to make; the chat starts immediately and only asks for an email inline, if and
+  // when a question actually turns out to need it.
+  let userEmail = sessionStorage.getItem('helpdeskUserEmail') || null;
+  // The question that triggered a login-required prompt, so it can be silently
+  // resumed the moment the caller provides an email — they should never have to
+  // retype it.
+  let pendingMessage = null;
+
+  function addMessage(role, text, toolsUsed){
+    const div = document.createElement('div');
+    div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+    if(role === 'user' || typeof marked === 'undefined' || typeof DOMPurify === 'undefined'){
+      // User input is never treated as markdown. Also the plain-text fallback if the
+      // markdown libs failed to load (e.g. offline) — an unstyled reply beats a blank one.
+      div.textContent = text;
+    } else {
+      // breaks:true turns a single newline into a <br> (GFM chat-style behavior).
+      // Without it, standard Markdown collapses a bare line break into a space, so
+      // e.g. two per-product lines separated by one newline visually run together.
+      const html = DOMPurify.sanitize(marked.parse(text, { breaks: true }));
+      div.innerHTML = html;
+      // Wrap each table so wide tables scroll horizontally instead of overflowing
+      // the narrow chat panel or forcing it wider.
+      div.querySelectorAll('table').forEach((table) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-scroll';
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      });
+    }
+    if(toolsUsed && toolsUsed.length){
+      const badge = document.createElement('div');
+      badge.className = 'tool-badge';
+      badge.textContent = 'via ' + toolsUsed.join(', ');
+      div.appendChild(badge);
+    }
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function isValidEmail(value){
+    // Simple, deliberately permissive check — real validation happens
+    // wherever the email is actually used to look up an account.
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function showEmailGate(promptText){
+    emailGateText.textContent = promptText || 'Please log in with your email to continue.';
+    emailError.textContent = '';
+    emailInput.value = '';
+    form.style.display = 'none';
+    emailGate.style.display = 'flex';
+    emailInput.focus();
+  }
+
+  function hideEmailGate(){
+    emailGate.style.display = 'none';
+    form.style.display = 'flex';
+  }
+
+  async function sendChat(text, { isRetry = false } = {}){
+    if(!isRetry){
+      addMessage('user', text);
+    }
+    sendBtn.disabled = true;
+    status.textContent = 'Thinking…';
+
+    try {
+      const res = await fetch(CHAT_ENDPOINT, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({message: text, history: history, email: userEmail})
+      });
+
+      if(!res.ok){
+        // Backend responded, but with an error — surface its detail
+        // instead of pretending the server is unreachable.
+        let detail = '';
+        try {
+          const errBody = await res.json();
+          detail = errBody.detail || JSON.stringify(errBody);
+        } catch(_) {
+          detail = await res.text().catch(() => '');
+        }
+        throw new Error('Backend returned ' + res.status + (detail ? ': ' + detail : ''));
+      }
+
+      const data = await res.json();
+      const reply = data.reply || '(no response)';
+      addMessage('bot', reply, data.tools_used);
+
+      if(data.login_required){
+        // Not a real answer to file into history — just remember what to resume
+        // once the caller provides an email, and prompt for it inline.
+        pendingMessage = text;
+        showEmailGate(reply);
+      } else {
+        history.push({role:'user', content:text});
+        history.push({role:'assistant', content:reply});
+        pendingMessage = null;
+      }
+      status.textContent = '';
+    } catch(err){
+      status.textContent = '';
+      const msg = (err && err.message) ? err.message : String(err);
+      if (msg.startsWith('Backend returned')) {
+        // A real HTTP error from the backend — show its actual detail.
+        addMessage('bot', 'Backend error — ' + msg);
+      } else {
+        // fetch() itself threw: the request never reached the server
+        // (wrong port, server not running, CORS block, etc.)
+        addMessage('bot', "Sorry, I couldn't reach the helpdesk backend at all. Is it running on " + CHAT_ENDPOINT + "?");
+      }
+      console.error(err);
+    } finally {
+      sendBtn.disabled = false;
+      if(form.style.display !== 'none'){
+        input.focus();
+      }
+    }
+  }
+
+  emailForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const value = emailInput.value.trim();
+    if(!isValidEmail(value)){
+      emailError.textContent = 'Please enter a valid email address.';
+      return;
+    }
+    emailError.textContent = '';
+    userEmail = value;
+    sessionStorage.setItem('helpdeskUserEmail', userEmail);
+
+    hideEmailGate();
+    const toResume = pendingMessage;
+    pendingMessage = null;
+    if(toResume){
+      await sendChat(toResume, { isRetry: true });
+    }
+  });
+
+  launcher.addEventListener('click', () => {
+    panel.classList.add('open');
+    if(!opened){
+      opened = true;
+      const greeting = userEmail
+        ? "Hi! I'm the helpdesk assistant. How can I help you today?"
+        : "Hi! I'm the helpdesk assistant. You're chatting as a guest right now — if a question needs your account, I'll ask for your email then. What's up?";
+      addMessage('bot', greeting);
+    }
+    input.focus();
+  });
+
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+    await sendChat(text);
+  });
+})();
+</script>
+
+</body>
+</html>
